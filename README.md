@@ -4,7 +4,7 @@ Stops short notification sounds from stealing your Mac's media keys away from
 Spotify, Music, or whatever you're actually listening to — while leaving real
 media (YouTube, podcasts, live streams) fully controllable from the keyboard.
 
-## The problem
+## Problem to solve
 
 macOS hands the play/pause key to whichever app most recently registered a
 "Now Playing" session — and Safari registers one for **any** sound a web page
@@ -20,7 +20,7 @@ This extension replicates that rule inside Safari.
 
 ## What it does
 
-- A sound of **5 seconds or less** finishes playing → the extension releases
+- A sound of **5 seconds or less** (over-ridable per web-page) finishes playing → the extension releases
   Safari's media-key claim, so the key goes straight back to your music app.
   The sound still plays audibly — nothing is muted or blocked.
 - Anything **longer than 5 seconds** (or of unknown/infinite length, e.g. live
@@ -105,8 +105,10 @@ this setting; they're always treated as real media.
 
 ## Contributing
 
-Forks and pull requests welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for
-build instructions.
+Forks and pull requests welcome. [CONTRIBUTING.md](CONTRIBUTING.md) takes you
+the whole way — fork, build, run your own copy in Safari, open a PR — and
+assumes no Xcode or GitHub experience. About half an hour, most of it Xcode
+downloading.
 
 ## License
 
