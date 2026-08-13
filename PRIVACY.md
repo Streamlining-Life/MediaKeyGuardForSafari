@@ -34,4 +34,4 @@ repository.
 ## Contact
 
 Open an issue at
-[github.com/GarethBlain/MediaKeyGuardForSafari](https://github.com/GarethBlain/MediaKeyGuardForSafari/issues).
+[github.com/Streamlining-Life/MediaKeyGuardForSafari](https://github.com/Streamlining-Life/MediaKeyGuardForSafari/issues).

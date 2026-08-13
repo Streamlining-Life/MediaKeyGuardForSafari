@@ -81,7 +81,7 @@ belongs in a version string.
 
 ## Build & run
 
-1. `git clone https://github.com/GarethBlain/MediaKeyGuardForSafari && cd MediaKeyGuardForSafari`
+1. `git clone https://github.com/Streamlining-Life/MediaKeyGuardForSafari && cd MediaKeyGuardForSafari`
 2. Open `app/MediaKeyGuardForSafari/MediaKeyGuardForSafari.xcodeproj`
 3. Both targets → Signing & Capabilities → select your team
 4. ⌘R — the wrapper app registers the extension with Safari

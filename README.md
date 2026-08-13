@@ -33,8 +33,10 @@ This extension replicates that rule inside Safari.
 
 ## Install
 
+Requires macOS 26 or later.
+
 **From a release:** download the latest app from
-[Releases](https://github.com/GarethBlain/MediaKeyGuardForSafari/releases),
+[Releases](https://github.com/Streamlining-Life/MediaKeyGuardForSafari/releases),
 move it to Applications, open it once, then enable the extension in
 **Safari → Settings → Extensions**.
 

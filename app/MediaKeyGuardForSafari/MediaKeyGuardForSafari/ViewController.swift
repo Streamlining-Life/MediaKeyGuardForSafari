@@ -33,13 +33,25 @@ class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHan
             }
 
             DispatchQueue.main.async {
-                if #available(macOS 13, *) {
-                    webView.evaluateJavaScript("show(\(state.isEnabled), true)")
-                } else {
-                    webView.evaluateJavaScript("show(\(state.isEnabled), false)")
-                }
+                webView.evaluateJavaScript("show(\(state.isEnabled), true)")
             }
         }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        // Main.html is loaded from file:// — the only other navigation it can
+        // start is the help link, which belongs in the user's browser. Handing
+        // it to NSWorkspace instead of loading it here keeps the app off the
+        // network entirely, so it needs no outgoing-connection entitlement.
+        guard let url = navigationAction.request.url, !url.isFileURL else {
+            decisionHandler(.allow)
+            return
+        }
+
+        if url.scheme == "http" || url.scheme == "https" {
+            NSWorkspace.shared.open(url)
+        }
+        decisionHandler(.cancel)
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
