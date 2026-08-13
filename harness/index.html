@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Media Key Guard for Safari — Phase 0 harness</title>
+<style>
+  :root { color-scheme: light dark; font-family: -apple-system, sans-serif; }
+  body { max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; }
+  h1 { font-size: 1.3rem; }
+  .test { border: 1px solid #8884; border-radius: 8px; padding: .75rem 1rem; margin: .75rem 0; }
+  .test h2 { font-size: 1rem; margin: 0 0 .35rem; }
+  .test p { margin: .25rem 0; font-size: .85rem; opacity: .85; }
+  button { font-size: .95rem; padding: .4rem .8rem; border-radius: 6px; cursor: pointer; }
+  #status { position: sticky; top: 0; background: Canvas; border-bottom: 2px solid #8886;
+            padding: .5rem 0; font: .8rem ui-monospace, monospace; }
+  #log { font: .78rem ui-monospace, monospace; white-space: pre-wrap; background: #8881;
+         border-radius: 8px; padding: .75rem; min-height: 4rem; }
+  .steps { background: #4a83; border-radius: 8px; padding: .75rem 1rem; font-size: .9rem; }
+</style>
+</head>
+<body>
+
+<h1>Media Key Guard for Safari — mechanism harness</h1>
+
+<div class="steps">
+  <b>How to run each test:</b>
+  <ol>
+    <li>Start Spotify playing music.</li>
+    <li><b>Reload this page</b> (⌘R) — fresh media session every test.</li>
+    <li>Click ONE test button. Wait for sound to finish (unless told otherwise).</li>
+    <li>Press the keyboard <b>play/pause key</b>.</li>
+    <li>Note what happened: <b>SPOTIFY</b> paused, or <b>SAFARI</b> replayed/paused the sound, or <b>NOTHING</b>.</li>
+  </ol>
+</div>
+
+<div id="status">mediaSession: (loading…)</div>
+
+<div class="test">
+  <h2>T1 — Baseline blip (the villain)</h2>
+  <p>2s beep via plain <code>new Audio()</code>, like a notification. Expect: Safari steals the key. Confirms repro.</p>
+  <button onclick="t1()">Play 2s blip</button>
+</div>
+
+<div class="test">
+  <h2>T2 — Long tone (YouTube stand-in)</h2>
+  <p>30s tone via <code>&lt;audio&gt;</code> element. Press key <i>while it plays</i>: should pause IT (desired for real media). Press again: resumes?</p>
+  <button onclick="t2()">Play 30s tone</button>
+</div>
+
+<div class="test">
+  <h2>T3 — Blip, then soft session release</h2>
+  <p>Plays blip, then on end sets <code>mediaSession.playbackState='none'</code> + <code>metadata=null</code>. Does Spotify get the key back?</p>
+  <button onclick="t3()">Play blip + soft release</button>
+</div>
+
+<div class="test">
+  <h2>T4 — Blip, then hard element teardown</h2>
+  <p>Plays blip, then on end: <code>src=''</code>, <code>load()</code>, drop reference, plus T3's session release. Nuclear page-level release.</p>
+  <button onclick="t4()">Play blip + hard release</button>
+</div>
+
+<div class="test">
+  <h2>T5 — Blip with disableRemotePlayback</h2>
+  <p>Sets <code>disableRemotePlayback=true</code> before play. Some engines skip Now Playing registration for these.</p>
+  <button onclick="t5()">Play blip (disableRemotePlayback)</button>
+</div>
+
+<div class="test">
+  <h2>T6 — Blip routed through AudioContext</h2>
+  <p>Same audio element but wired via <code>createMediaElementSource</code>. Does Safari still claim the key?</p>
+  <button onclick="t6()">Play blip (element → AudioContext)</button>
+</div>
+
+<div class="test">
+  <h2>T7 — Pure WebAudio blip (plan B, no media element)</h2>
+  <p>Decoded buffer → <code>BufferSource</code>. No media element exists, so Safari should never claim the key.</p>
+  <button onclick="t7()">Play blip (pure WebAudio)</button>
+</div>
+
+<div class="test">
+  <h2>T8 — Blip → error teardown (src='') → replay same element</h2>
+  <p>Exact T4 teardown (<code>src=''</code> forces a load error) but element kept for reuse.
+     Press key after each play — expect <b>SPOTIFY every time</b>, and replay must still make sound.</p>
+  <button onclick="t8()">1: Play blip (auto teardown)</button>
+  <button onclick="t8()">2: Replay same element</button>
+</div>
+
+<div class="test">
+  <h2>T9 — WebAudio reroute (plan B, site-pattern)</h2>
+  <p>Same element reused, but its sound is decoded and played through WebAudio instead —
+     the element itself never plays. Expect <b>SPOTIFY every time</b>, sound audible both clicks.</p>
+  <button onclick="t9()">1: Play blip (rerouted)</button>
+  <button onclick="t9()">2: Replay (rerouted)</button>
+</div>
+
+<div class="test">
+  <h2>T10 — Over-length notification + per-site override</h2>
+  <p>8s blip: longer than the default 5s limit, so the guard ignores it and Safari keeps the key.
+     Run it twice — the status bar above shows the limit actually in force.</p>
+  <ol style="font-size:.85rem">
+    <li><b>Default (limit 5s):</b> play, wait for the end, press the key → expect <b>SAFARI</b>.</li>
+    <li>Popup → set <b>10</b> sec → Apply, then reload. Status must read <code>limit 10s</code>.</li>
+    <li><b>Override (limit 10s):</b> play again, wait for the end, press the key → expect <b>SPOTIFY</b>.</li>
+  </ol>
+  <button onclick="t10()">Play 8s blip</button>
+</div>
+
+<h2 style="font-size:1rem">Log</h2>
+<div id="log"></div>
+
+<script>
+'use strict';
+
+// ---------------------------------------------------------------------------
+// WAV synthesis: build tones in JS so the page is fully self-contained (no
+// external audio files, no CORS). 16-bit PCM mono WAV wrapped in a Blob URL.
+// ---------------------------------------------------------------------------
+function makeWavUrl(seconds, freq) {
+  const rate = 44100;
+  const n = Math.floor(rate * seconds);
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const str = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE');
+  str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) {
+    // Quiet sine with fade in/out so it doesn't click or deafen anyone.
+    const env = Math.min(1, i / 2000, (n - i) / 2000);
+    v.setInt16(44 + i * 2, Math.sin(2 * Math.PI * freq * i / rate) * 0.15 * env * 32767, true);
+  }
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+
+const BLIP_URL = makeWavUrl(2, 880);   // 2s @ 880Hz — under Chrome's 5s "real content" bar
+const LONG_URL = makeWavUrl(30, 440);  // 30s @ 440Hz — real content stand-in
+const MID_URL  = makeWavUrl(8, 660);   // 8s @ 660Hz — over the default limit, under a 10s override
+
+// ---------------------------------------------------------------------------
+// Logging + live mediaSession readout
+// ---------------------------------------------------------------------------
+const logEl = document.getElementById('log');
+function log(msg) {
+  logEl.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+  console.log(msg);
+}
+
+setInterval(() => {
+  const ms = navigator.mediaSession;
+  // __mediaKeyGuard is set by the extension's page.js to the sound-length
+  // limit in force — visible proof the extension injected into THIS page
+  // (it won't on file:// URLs), and which per-site override landed.
+  const guard = window.__mediaKeyGuard
+    ? `GUARD ACTIVE ✅ (limit ${window.__mediaKeyGuard}s)`
+    : 'guard NOT injected ❌';
+  document.getElementById('status').textContent = (ms
+    ? `mediaSession: playbackState=${ms.playbackState}  metadata=${ms.metadata ? `"${ms.metadata.title}"` : 'null'}`
+    : 'mediaSession: API unavailable') + '  |  ' + guard;
+}, 500);
+
+// Keep a reference alive during playback so GC can't be the variable that
+// changes results between tests.
+let currentEl = null;
+
+// ---------------------------------------------------------------------------
+// T1 — baseline: exactly what a notification sound does
+// ---------------------------------------------------------------------------
+function t1() {
+  currentEl = new Audio(BLIP_URL);
+  currentEl.onended = () => log('T1: blip ended. NOW press play/pause key. Who responds?');
+  currentEl.play().then(() => log('T1: blip playing…')).catch(e => log('T1 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T2 — long content: media key SHOULD control this while playing
+// ---------------------------------------------------------------------------
+function t2() {
+  currentEl = document.createElement('audio');
+  currentEl.src = LONG_URL;
+  document.body.appendChild(currentEl);
+  currentEl.onpause = () => log('T2: element PAUSED (key controlled Safari — desired for real media)');
+  currentEl.onplay  = () => log('T2: element playing');
+  currentEl.play().then(() => log('T2: 30s tone playing — press key mid-playback')).catch(e => log('T2 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T3 — soft release: clear the page's media session after the blip ends
+// ---------------------------------------------------------------------------
+function t3() {
+  currentEl = new Audio(BLIP_URL);
+  currentEl.onended = () => {
+    try {
+      navigator.mediaSession.playbackState = 'none';
+      navigator.mediaSession.metadata = null;
+      // Also detach action handlers in case their mere presence keeps the claim.
+      for (const a of ['play','pause','previoustrack','nexttrack','seekbackward','seekforward'])
+        { try { navigator.mediaSession.setActionHandler(a, null); } catch {} }
+      log('T3: blip ended, session cleared. NOW press play/pause key.');
+    } catch (e) { log('T3 release failed: ' + e); }
+  };
+  currentEl.play().then(() => log('T3: blip playing…')).catch(e => log('T3 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T4 — hard release: destroy the element entirely, then clear session
+// ---------------------------------------------------------------------------
+function t4() {
+  currentEl = new Audio(BLIP_URL);
+  currentEl.onended = () => {
+    try {
+      currentEl.onended = null;
+      currentEl.src = '';
+      currentEl.load();          // forces WebKit to tear down the media resource
+      currentEl = null;          // drop our only reference
+      navigator.mediaSession.playbackState = 'none';
+      navigator.mediaSession.metadata = null;
+      log('T4: blip ended, element destroyed + session cleared. NOW press play/pause key.');
+    } catch (e) { log('T4 teardown failed: ' + e); }
+  };
+  currentEl.play().then(() => log('T4: blip playing…')).catch(e => log('T4 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T5 — disableRemotePlayback before play
+// ---------------------------------------------------------------------------
+function t5() {
+  currentEl = new Audio(BLIP_URL);
+  currentEl.disableRemotePlayback = true;
+  currentEl.onended = () => log('T5: blip ended. NOW press play/pause key.');
+  currentEl.play().then(() => log('T5: blip playing (disableRemotePlayback=true)…')).catch(e => log('T5 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T6 — element routed into AudioContext via createMediaElementSource
+// ---------------------------------------------------------------------------
+let ctx6 = null;
+function t6() {
+  ctx6 = ctx6 || new AudioContext();
+  ctx6.resume();
+  currentEl = new Audio(BLIP_URL);
+  const src = ctx6.createMediaElementSource(currentEl);
+  src.connect(ctx6.destination);
+  currentEl.onended = () => log('T6: blip ended. NOW press play/pause key.');
+  currentEl.play().then(() => log('T6: blip playing via AudioContext…')).catch(e => log('T6 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T7 — plan B: no media element at all. fetch → decode → BufferSource
+// ---------------------------------------------------------------------------
+let ctx7 = null;
+async function t7() {
+  try {
+    ctx7 = ctx7 || new AudioContext();
+    await ctx7.resume();
+    const raw = await (await fetch(BLIP_URL)).arrayBuffer();
+    const decoded = await ctx7.decodeAudioData(raw);
+    const src = ctx7.createBufferSource();
+    src.buffer = decoded;
+    src.connect(ctx7.destination);
+    src.onended = () => log('T7: blip ended. NOW press play/pause key. (Should be SPOTIFY)');
+    src.start();
+    log('T7: pure WebAudio blip playing…');
+  } catch (e) { log('T7 failed: ' + e); }
+}
+
+// ---------------------------------------------------------------------------
+// T8 — the extension's real loop: play → teardown on ended → restore src so
+// the same element can be replayed (sites reuse notification elements).
+// Same element across both button clicks; do NOT reload between them.
+//
+// Teardown uses src='' (NOT removeAttribute): empty string resolves to the
+// page URL, WebKit fails to load it as media, and the resulting error state
+// is what actually releases Now Playing (T4 passed with this; the
+// removeAttribute variant left Safari holding the keys).
+// ---------------------------------------------------------------------------
+let el8 = null;
+function t8() {
+  if (!el8) el8 = new Audio();
+  // Restore phase: put the parked src back before playing (extension does
+  // this lazily on the next play() call). src is '' after teardown.
+  if (!el8.getAttribute('src')) { el8.src = BLIP_URL; el8.load(); }
+  el8.onended = () => {
+    try {
+      el8.src = '';
+      el8.load();                                  // exact T4 teardown — load error releases Now Playing
+      navigator.mediaSession.playbackState = 'none';
+      navigator.mediaSession.metadata = null;
+      setTimeout(() => log(`T8: torn down (error=${el8.error ? el8.error.code : 'none'}). Press key (expect SPOTIFY), then replay.`), 300);
+    } catch (e) { log('T8 teardown failed: ' + e); }
+  };
+  el8.play().then(() => log('T8: blip playing…')).catch(e => log('T8 play failed: ' + e));
+}
+
+// ---------------------------------------------------------------------------
+// T9 — plan B as the extension would apply it: the site's element is never
+// allowed to play; its audio is fetched, decoded, and played through
+// WebAudio instead (T7 proved pure WebAudio never claims Now Playing).
+// Same element reused across clicks, mimicking a site's cached ping element.
+// ---------------------------------------------------------------------------
+let el9 = null, ctx9 = null;
+async function t9() {
+  try {
+    if (!el9) { el9 = new Audio(BLIP_URL); }       // site's element — we never call play() on it
+    ctx9 = ctx9 || new AudioContext();
+    await ctx9.resume();
+    const raw = await (await fetch(el9.src)).arrayBuffer();
+    const decoded = await ctx9.decodeAudioData(raw);
+    const src = ctx9.createBufferSource();
+    src.buffer = decoded;
+    src.connect(ctx9.destination);
+    src.onended = () => log('T9: blip ended. Press key (expect SPOTIFY), then replay.');
+    src.start();
+    log('T9: blip playing via WebAudio reroute…');
+  } catch (e) { log('T9 failed: ' + e); }
+}
+
+// ---------------------------------------------------------------------------
+// T10 — 8s sound: over the default 5s limit, under a 10s per-site override.
+// The guard itself does the work here; this test only supplies the sound.
+// ---------------------------------------------------------------------------
+function t10() {
+  currentEl = new Audio(MID_URL);
+  currentEl.onended = () => log(
+    `T10: 8s blip ended (limit in force: ${window.__mediaKeyGuard || 'none'}s). ` +
+    'NOW press play/pause key.'
+  );
+  currentEl.play()
+    .then(() => log('T10: 8s blip playing…'))
+    .catch(e => log('T10 play failed: ' + e));
+}
+
+log('Harness ready. Reload between tests. Spotify must be playing first.');
+</script>
+</body>
+</html>

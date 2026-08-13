@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    width: 260px;
+    margin: 0;
+    padding: 12px;
+  }
+  h1 { font-size: 14px; margin: 0 0 8px; }
+  #state { font-weight: 600; margin: 0 0 10px; }
+  #state.active { color: #2e8b57; }
+  #state.excluded { color: #b04a4a; }
+  button {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    margin: 6px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #limit { margin-top: 10px; border-top: 1px solid #8884; padding-top: 8px; }
+  #limit label { display: block; font-size: 11px; opacity: .75; margin-bottom: 4px; }
+  .row { display: flex; align-items: center; gap: 6px; }
+  .row input { width: 56px; padding: 5px; font: inherit; }
+  .row button { width: auto; flex: 1; margin: 0; }
+  .links { margin-top: 10px; border-top: 1px solid #8884; padding-top: 8px; }
+  .links a { display: block; margin: 4px 0; }
+  #version { opacity: .6; font-size: 11px; margin-top: 8px; }
+  #note { opacity: .75; font-size: 11px; }
+</style>
+</head>
+<body>
+<h1>MediaKeyGuard</h1>
+<p id="state">…</p>
+<button id="toggle" hidden></button>
+<div id="limit" hidden>
+  <label for="secs">Treat sounds up to this long as notifications:</label>
+  <div class="row">
+    <input id="secs" type="number" min="1" max="600" step="1" value="10">
+    <span>sec</span>
+    <button id="apply">Apply</button>
+  </div>
+  <button id="clear" hidden>Back to 5s default</button>
+</div>
+<p id="note" hidden>Reload the page for this change to take effect.</p>
+<div class="links">
+  <a href="#" id="options">Edit site lists…</a>
+  <a href="https://github.com/GarethBlain/MediaKeyGuardForSafari#readme" target="_blank" rel="noopener">Help / About</a>
+</div>
+<p id="version"></p>
+<script src="matcher.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

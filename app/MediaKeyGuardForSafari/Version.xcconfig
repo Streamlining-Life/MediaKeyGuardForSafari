@@ -1,0 +1,23 @@
+// Version.xcconfig — the single place version numbers are set.
+//
+// Assigned at PROJECT level (Project → Info → Configurations), so the app
+// target and the extension appex both inherit these. Both must agree:
+// App Store Connect rejects an upload whose appex version differs from its
+// containing app's.
+//
+// Do NOT type versions into a target's General tab — that writes a
+// target-level override, which beats this file and silently reintroduces the
+// drift this file exists to prevent. Edit here, nowhere else.
+//
+// tools/sync-resources.sh reads MARKETING_VERSION out of this file and
+// stamps it into extension/manifest.json, which is what the popup's footer
+// shows (runtime.getManifest() can't see the bundle's version).
+
+// User-facing version. Numeric only — App Store Connect rejects letters, and
+// manifest.json accepts at most 4 dot-separated integers. Betas are a
+// TestFlight concern, not a version-string one.
+MARKETING_VERSION = 1.0.0
+
+// Build number. Must increase on every upload to App Store Connect, including
+// every TestFlight build of an unchanged MARKETING_VERSION.
+CURRENT_PROJECT_VERSION = 1

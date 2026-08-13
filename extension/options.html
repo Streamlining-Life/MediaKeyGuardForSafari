@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MediaKeyGuard — site lists</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    max-width: 560px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+  }
+  h1 { font-size: 16px; }
+  h1 + p { margin-top: 0; }
+  h1:not(:first-of-type) { margin-top: 2rem; border-top: 1px solid #8884; padding-top: 1.25rem; }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    font: 12px ui-monospace, monospace;
+    box-sizing: border-box;
+  }
+  table { border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+  td, th { border: 1px solid #8884; padding: 3px 8px; text-align: left; }
+  td:last-child { font-family: ui-monospace, monospace; }
+  #save { padding: 6px 16px; border-radius: 6px; cursor: pointer; }
+  #msg { margin-left: 10px; }
+  #msg.ok { color: #2e8b57; }
+  #msg.err { color: #b04a4a; }
+  .warn { font-size: 12px; opacity: .75; }
+</style>
+</head>
+<body>
+<h1>Excluded pages</h1>
+<p>Pages matching any pattern below get Safari's default media-key behaviour —
+   sounds there can take over the play/pause key again. One pattern per line;
+   lines starting with <code>#</code> are comments. Changes apply on the next
+   page load.</p>
+<textarea id="list" spellcheck="false" placeholder="*.example.com/*"></textarea>
+
+<table>
+  <tr><th>To exclude…</th><th>Pattern</th></tr>
+  <tr><td>One exact page</td><td>teams.microsoft.com/l/meetup-join/abc</td></tr>
+  <tr><td>A path section</td><td>example.com/mail/*</td></tr>
+  <tr><td>One subdomain</td><td>mail.example.com/*</td></tr>
+  <tr><td>Whole domain + subdomains</td><td>*.example.com/*</td></tr>
+</table>
+
+<h1>Longer notification sounds</h1>
+<p>By default a sound of <b>5 seconds or less</b> counts as a notification and
+   gives the media keys back when it finishes; anything longer is treated as
+   real media and left alone. Some sites use chimes longer than that, so they
+   keep the keys. Raise the limit for those sites here — same patterns as
+   above, plus <code>= seconds</code>:</p>
+<textarea id="overrides" spellcheck="false"
+          placeholder="teams.microsoft.com/* = 12"></textarea>
+<p class="warn">Only raise it as far as the site's chime actually needs. Real
+   media on that site shorter than the limit — a voice note, a short clip —
+   will also hand the keys back when it ends.</p>
+
+<p><button id="save">Save</button><span id="msg"></span></p>
+
+<script src="matcher.js"></script>
+<script src="options.js"></script>
+</body>
+</html>
