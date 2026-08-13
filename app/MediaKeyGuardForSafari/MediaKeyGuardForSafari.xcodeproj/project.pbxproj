@@ -6,6 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		A1C0FFEE0000000000000041 /* Uninstall All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = A1C0FFEE0000000000000043 /* Build configuration list for PBXAggregateTarget "Uninstall All" */;
+			buildPhases = (
+				A1C0FFEE0000000000000042 /* Uninstall every installed copy */,
+			);
+			dependencies = (
+			);
+			name = "Uninstall All";
+			productName = "Uninstall All";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		52437F90302B875100A2F27A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52437F8F302B875100A2F27A /* AppDelegate.swift */; };
 		52437F94302B875100A2F27A /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 52437F92302B875100A2F27A /* Main.html */; };
@@ -229,6 +243,9 @@
 					52437FA6302B875300A2F27A = {
 						CreatedOnToolsVersion = 26.6;
 					};
+					A1C0FFEE0000000000000041 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 				};
 			};
 			buildConfigurationList = 52437F87302B875100A2F27A /* Build configuration list for PBXProject "MediaKeyGuardForSafari" */;
@@ -247,6 +264,7 @@
 			targets = (
 				52437F8B302B875100A2F27A /* MediaKeyGuardForSafari */,
 				52437FA6302B875300A2F27A /* MediaKeyGuardForSafari Extension */,
+				A1C0FFEE0000000000000041 /* Uninstall All */,
 			);
 		};
 /* End PBXProject section */
@@ -303,6 +321,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"$SRCROOT/../../tools/sync-resources.sh\"\n";
+		};
+		A1C0FFEE0000000000000042 /* Uninstall every installed copy */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Uninstall every installed copy";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# -y because a build phase has no stdin: the script's confirmation\n# prompt would hang the build waiting for an answer nobody can give.\n\"$SRCROOT/../../tools/uninstall-all.sh\" -y\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -616,6 +653,27 @@
 			};
 			name = Release;
 		};
+		A1C0FFEE0000000000000044 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				/* The script writes outside the build directory — it deletes app
+				   bundles and talks to LaunchServices. Same reason the extension
+				   target turns sandboxing off for its sync phase. */
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A1C0FFEE0000000000000045 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -642,6 +700,15 @@
 			buildConfigurations = (
 				52437FB6302B875300A2F27A /* Debug */,
 				52437FB7302B875300A2F27A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1C0FFEE0000000000000043 /* Build configuration list for PBXAggregateTarget "Uninstall All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C0FFEE0000000000000044 /* Debug */,
+				A1C0FFEE0000000000000045 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
