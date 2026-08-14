@@ -1,14 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The app target sets GENERATE_INFOPLIST_FILE = NO, so this file is the whole
+     Info.plist: every key Xcode's generator used to supply is written out here.
+     That is what it costs to control CFBundleName — the generator hard-wires it
+     to $(PRODUCT_NAME) and ignores both this file and INFOPLIST_KEY_CFBundleName.
+
+     $(...) values are expanded at build time, so versions still come from
+     Version.xcconfig and nothing here needs editing on a version bump. -->
 <plist version="1.0">
 <dict>
-	<key>SFSafariWebExtensionConverterVersion</key>
-	<string>26.6</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026 Gareth Blain</string>
+	<!-- Menu-bar title, capped by Apple at 15 characters — which is why the full
+	     "Media Key Guard for Safari" lives in CFBundleDisplayName instead. -->
+	<key>CFBundleName</key>
+	<string>Media Key Guard</string>
+	<key>CFBundleDisplayName</key>
+	<string>Media Key Guard for Safari</string>
+
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+
+	<key>NSMainStoryboardFile</key>
+	<string>Main</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2026 Gareth Blain</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>SFSafariWebExtensionConverterVersion</key>
+	<string>26.6</string>
 </dict>
 </plist>

@@ -616,13 +616,13 @@
 				DEVELOPMENT_TEAM = Z3Z9Y4DSV9;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				/* NO because the generator hard-wires CFBundleName to
+				   $(PRODUCT_NAME) and overrides the file. Every key it used to
+				   supply now lives in MediaKeyGuardForSafari/Info.plist, which
+				   is why the INFOPLIST_KEY_* settings are gone from here — they
+				   feed the generator and would be silently dead. */
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = MediaKeyGuardForSafari/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Media Key Guard for Safari";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Gareth Blain";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -655,13 +655,13 @@
 				DEVELOPMENT_TEAM = Z3Z9Y4DSV9;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				/* NO because the generator hard-wires CFBundleName to
+				   $(PRODUCT_NAME) and overrides the file. Every key it used to
+				   supply now lives in MediaKeyGuardForSafari/Info.plist, which
+				   is why the INFOPLIST_KEY_* settings are gone from here — they
+				   feed the generator and would be silently dead. */
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = MediaKeyGuardForSafari/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Media Key Guard for Safari";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Gareth Blain";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
