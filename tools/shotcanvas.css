@@ -1,25 +1,28 @@
 /* shotcanvas.css — shared furniture for the App Store screenshot canvases.
  *
- * A capture of the real UI is only ~570px wide however it is taken (macOS
- * renders at 2x and never more), so filling a 2880x1800 store slot from one
- * means upscaling to mush. These canvases re-render the extension's own markup
- * and CSS at final size instead, and rebuild the surrounding Safari furniture
- * here so the shot still reads as a real screenshot.
- *
- * popup.html and options.html declare `color-scheme: light dark` and let the
- * browser supply the actual colours, so there is nothing in the extension to
- * copy the palette from — it lives here instead, keyed off the data-theme
- * make-shots.sh stamps in. Values are matched against real captures of the
- * popup in each appearance.
+ * The canvases are rendered by REAL SAFARI (driven by tools/make-shots.sh),
+ * not a headless engine, precisely so that form controls — buttons, the
+ * number stepper, the focus ring — are drawn by WebKit itself. Nothing in
+ * here styles a control: the popup and options markup carry the extension's
+ * own stylesheets verbatim, and Safari does the rest. This file only paints
+ * what sits AROUND the page in a real screenshot: wallpaper, Safari-style
+ * toolbar, popover panel and pointer.
  *
  * The glass is genuine as far as CSS goes: macOS blurs what is behind these
  * surfaces and `backdrop-filter` is the same operation over the generated
- * wallpaper. What CSS cannot reproduce is Liquid Glass's specular rim and
- * refraction, so the edge highlight below stands in for them.
+ * wallpaper. The rim highlight stands in for Liquid Glass's specular edge,
+ * which is a shader with no CSS equivalent.
  *
- * Rendered by tools/make-shots.sh at 1440x900 CSS px with a 2x device scale
- * factor, which lands exactly on 2880x1800.
+ * Geometry: the user's display runs at 1x, so device pixels == CSS pixels.
+ * Each canvas lays out a .frame of 2880x1800 CSS px (via zoom) and the
+ * capture script crops exactly that region out of the Safari window, using
+ * the magenta sentinel strip body::before draws above the frame.
  */
+
+/* Forced per-shot by the {{THEME}} stamp — controls follow the document
+   colour scheme, so each theme renders regardless of the system setting. */
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 
 /* ---- palettes --------------------------------------------------------- */
 :root[data-theme="light"] {
@@ -35,21 +38,11 @@
   --pill-ring: rgba(0, 0, 0, .07);
   --pill-text: rgba(0, 0, 0, .70);
 
-  --panel-bg: rgba(255, 255, 255, .62);
-  --panel-rim: rgba(255, 255, 255, .75);
+  --panel-bg: rgba(248, 246, 250, .80);
+  --panel-rim: rgba(255, 255, 255, .85);
+  --panel-outline: rgba(0, 0, 0, .16);
   --panel-edge: rgba(0, 0, 0, .12);
-
-  --text: #000;
-  --text-dim: rgba(0, 0, 0, .62);
-  --hairline: rgba(0, 0, 0, .18);
-
-  --btn-top: rgba(210, 210, 212, .96);
-  --btn-bottom: rgba(196, 196, 199, .96);
-  --btn-edge: rgba(0, 0, 0, .20);
-  --field-bg: #fff;
-  --field-edge: rgba(0, 0, 0, .26);
-  --link: #0a62d0;
-  --page-bg: #fff;
+  --glass-filter: blur(40px) saturate(150%);
 }
 
 :root[data-theme="dark"] {
@@ -66,33 +59,27 @@
   --pill-ring: rgba(255, 255, 255, .10);
   --pill-text: rgba(255, 255, 255, .78);
 
-  --panel-bg: rgba(52, 53, 58, .70);
+  --panel-bg: rgba(50, 50, 55, .80);
   --panel-rim: rgba(255, 255, 255, .22);
-  --panel-edge: rgba(0, 0, 0, .40);
-
-  --text: #fff;
-  --text-dim: rgba(255, 255, 255, .62);
-  --hairline: rgba(255, 255, 255, .20);
-
-  --btn-top: rgba(255, 255, 255, .20);
-  --btn-bottom: rgba(255, 255, 255, .15);
-  --btn-edge: rgba(255, 255, 255, .18);
-  --field-bg: rgba(0, 0, 0, .28);
-  --field-edge: rgba(255, 255, 255, .22);
-  --link: #4da3ff;
-  --page-bg: #1c1c1e;
+  --panel-outline: rgba(0, 0, 0, .55);
+  --panel-edge: rgba(0, 0, 0, .45);
+  --glass-filter: blur(40px) saturate(190%);
 }
 
-html, body {
-  margin: 0;
-  height: 100%;
-}
-
+html, body { margin: 0; }
 body {
-  display: grid;
-  place-items: center;
   background: #05070d;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Sentinel for the capture script: a solid magenta strip whose bottom edge
+   marks where the 2880x1800 frame begins in the window capture. Cropped out
+   of the final image. */
+body::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: #ff00ff;
 }
 
 /* ---- generated wallpaper --------------------------------------------- */
@@ -172,53 +159,38 @@ body {
 .pill svg { opacity: .55; }
 
 /* ---- glass ------------------------------------------------------------ */
-/* The rim highlight stands in for Liquid Glass's specular edge, which is a
-   shader effect with no CSS equivalent. */
 .glass {
   background: var(--panel-bg);
-  backdrop-filter: blur(40px) saturate(190%);
-  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  backdrop-filter: var(--glass-filter);
+  -webkit-backdrop-filter: var(--glass-filter);
+  /* Outside in: drop shadows, a dark hairline at the very edge, then the
+     inner keyline just inside it. */
   box-shadow:
     0 16px 46px var(--panel-edge),
     0 2px 8px rgba(0, 0, 0, .22),
-    inset 0 0 0 .5px var(--panel-rim),
-    inset 0 1px 0 0 var(--panel-rim);
+    0 0 0 .5px var(--panel-outline),
+    inset 0 0 0 1px var(--panel-rim);
 }
 
-/* Popover pointer: a rotated square carrying the same glass, tucked behind the
-   panel so only the tip shows, centred on the toolbar button rather than on
-   the panel. */
+/* Popover pointer: a SEPARATE part of the popover, not a bump on the panel.
+   The clip window covers only the gap between toolbar and panel, so of the
+   rotated square inside it just the triangle shows — its base landing on the
+   panel's top edge, whose keyline runs on behind it as the visible seam. The
+   two exposed edges carry their own hairline. */
+.pointer-clip {
+  position: absolute;
+  overflow: hidden;
+  width: 23px;
+  height: 9px;
+}
 .pointer {
   position: absolute;
-  z-index: 1;
+  top: 2px;
+  left: 4px;
   width: 15px;
   height: 15px;
   border-radius: 3px;
   transform: rotate(45deg);
-}
-
-/* ---- native control styling ------------------------------------------ */
-/* Chrome is doing the rendering, so restate what AppKit would draw itself. */
-.ui { color: var(--text); }
-.ui button {
-  font: inherit;
-  color: var(--text);
-  background: linear-gradient(var(--btn-top), var(--btn-bottom));
-  border: .5px solid var(--btn-edge);
-  box-shadow: 0 .5px 1px rgba(0, 0, 0, .10);
-}
-.ui input,
-.ui textarea {
-  border: .5px solid var(--field-edge);
-  border-radius: 5px;
-  background: var(--field-bg);
-  color: var(--text);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .08);
-}
-.ui a { color: var(--link); }
-
-/* Safari puts a focus ring on the first control in a freshly opened popup. */
-.ui .focused {
-  border-color: #0a72e8;
-  box-shadow: 0 0 0 3px rgba(10, 114, 232, .45);
+  border-top: 1px solid var(--panel-outline);
+  border-left: 1px solid var(--panel-outline);
 }

@@ -6,43 +6,48 @@
 <link rel="stylesheet" href="shotcanvas.css">
 <!--
   App Store screenshot canvas: the toolbar popup, hanging off a rebuilt Safari
-  toolbar over a generated wallpaper.
+  toolbar over a generated wallpaper. Rendered by REAL SAFARI via
+  tools/make-shots.sh, so every control below — buttons, the number stepper,
+  the focus ring on the autofocused button — is drawn by WebKit itself from
+  the extension's own stylesheet. Nothing here styles a control.
 
-  The popup below is extension/popup.html's own markup and CSS, re-rendered at
-  final size rather than enlarged from a capture. The toolbar icon is the real
-  icon file and {{VERSION}} is stamped from Version.xcconfig by make-shots.sh,
-  so neither can drift from the shipped release. Only the state sentence is
+  The popup is extension/popup.html's markup and CSS, re-rendered at final
+  size rather than enlarged from a capture. The toolbar icon is the real icon
+  file and {{VERSION}} is stamped from Version.xcconfig by make-shots.sh, so
+  neither can drift from the shipped release. Only the state sentence is
   hand-written — it comes from popup.js talking to Safari's tab API, which
   cannot run here; keep it in step with render() in extension/popup.js.
 -->
 <style>
-  /* 576x360 at 2.5x is 1440x900, which the 2x render turns into 2880x1800.
-     The popup is 284px wide, so it takes half the frame's width and four
-     fifths of its height — the zoomed-in framing, with enough of the toolbar
-     above it to place where the popup came from. */
+  /* The design grid is 576x360; zoom 5 lays it out at 2880x1800 CSS px,
+     which on a 1x display is 2880x1800 device px — the App Store slot.
+     Every coordinate below is in the 576x360 space. */
   .frame {
     width: 576px;
     height: 360px;
-    zoom: 2.5;
+    zoom: 5;
   }
   .toolbar { height: 46px; }
   .toolbar .spacer { flex: .6; }
   .toolbar .pill { flex: 1; }
 
   /* Anchored under the toolbar button, the way Safari drops a popover. The
-     pointer is centred on the button (x 269), not on the panel. */
+     pointer is centred on the button (x 269), not on the panel, and clipped
+     to the gap between toolbar and panel — it is its own part of the
+     popover, and the overlap at its base is the visible seam. */
   .popup {
     position: absolute;
     z-index: 2;
     top: 54px;
     left: 127px;
   }
-  .pointer {
-    top: 48px;
-    left: 261px;
+  .pointer-clip {
+    z-index: 3;
+    top: 46px;
+    left: 257px;
   }
 
-  /* ---- extension/popup.html's own stylesheet ------------------------- */
+  /* ---- extension/popup.html's own stylesheet, verbatim ---------------- */
   .popup {
     font-family: -apple-system, sans-serif;
     font-size: 13px;
@@ -72,16 +77,22 @@
   .popup #version { opacity: .6; font-size: 11px; margin-top: 8px; }
 
   /* ---- the panel macOS draws around it ------------------------------- */
-  /* Colours and the glass itself come from .glass in shotcanvas.css. */
+  /* Only the panel: its glass comes from .glass in shotcanvas.css, its text
+     colour from the document colour scheme. Controls are Safari's. */
   .popup {
     box-sizing: content-box;
-    border-radius: 14px;
+    border-radius: 16px;
+    color: CanvasText;
   }
-  .popup #state.active { color: #2e8b57; }
-  .popup #limit { border-top-color: var(--hairline); }
-  .popup .links { border-top-color: var(--hairline); }
-  .popup #limit label,
-  .popup #version { color: var(--text-dim); opacity: 1; }
+
+  /* The one control Safari mis-draws under zoom: the native focus ring is
+     painted at fixed physical thickness, so at 5x it comes out hairline.
+     Replace it with a ring that scales, in the system accent colour Safari
+     itself uses. Thickness and stand-off match a real popup capture. */
+  #toggle:focus {
+    outline: 3px solid -webkit-focus-ring-color;
+    outline-offset: 2px;
+  }
 </style>
 </head>
 <body>
@@ -98,14 +109,15 @@
     </div>
   </div>
 
-  <div class="pointer glass"></div>
+  <div class="pointer-clip"><div class="pointer glass"></div></div>
 
   <!-- extension/popup.html's body, in the state popup.js renders for a site
-       carrying a 12-second override. -->
-  <div class="popup ui glass">
+       carrying a 12-second override. autofocus puts Safari's own focus ring
+       on the first button, as a freshly opened popup has. -->
+  <div class="popup glass">
     <h1>MediaKeyGuard</h1>
     <p id="state" class="active">Guard active — sounds up to 12s ✅</p>
-    <button id="toggle" class="focused">Exclude this site</button>
+    <button id="toggle" autofocus>Exclude this site</button>
     <div id="limit">
       <label for="secs">Treat sounds up to this long as notifications:</label>
       <div class="row">

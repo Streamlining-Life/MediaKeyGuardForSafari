@@ -6,7 +6,9 @@
 <link rel="stylesheet" href="shotcanvas.css">
 <!--
   App Store screenshot canvas: the site-list editor, in a rebuilt Safari window
-  over the same generated wallpaper as the popup shot.
+  over the same generated wallpaper as the popup shot. Rendered by REAL SAFARI
+  via tools/make-shots.sh — the textareas, table and Save button are WebKit's
+  own rendering of the extension's stylesheet.
 
   The page below is extension/options.html's own markup and CSS. The tab title
   ({{OPTIONS_TITLE}}) is stamped from that file's <title> by make-shots.sh and
@@ -17,10 +19,15 @@
   documentation of the syntax.
 -->
 <style>
-  /* 1286x804 at 1.12x is 1440x900. The page is 560px wide and ~700 tall, so
-     the zoom is set by how much of that fits: any more and the Save button
-     falls off the bottom. */
-  .frame { width: 1286px; height: 804px; zoom: 1.12; }
+  /* The design grid is 1286x804; zoom 2.24 lays it out at ~2880x1800 CSS px,
+     which on a 1x display is the App Store slot. The page is 560px wide and
+     ~700 tall, so the window is sized to show it whole: any larger zoom and
+     the Save button falls off the bottom. */
+  .frame {
+    width: 1286px;
+    height: 804px;
+    zoom: 2.24;
+  }
 
   /* A Safari window sitting on the desktop, rather than the popup shot's
      zoomed-in framing: the page reads better whole than cropped, and a window
@@ -42,18 +49,19 @@
   .window .pill { max-width: 380px; flex: none; width: 380px; }
 
   /* The page itself is ordinary web content, so it is opaque — only the
-     toolbar above it is glass. */
+     toolbar above it is glass. Canvas resolves per the forced colour
+     scheme, exactly as the real options page's background does. */
   .page {
     height: calc(100% - 46px);
     overflow: hidden;
-    background: var(--page-bg);
+    background: Canvas;
+    color: CanvasText;
   }
 
-  /* ---- extension/options.html's own stylesheet ----------------------- */
+  /* ---- extension/options.html's own stylesheet, verbatim -------------- */
   .page .doc {
     font-family: -apple-system, sans-serif;
     font-size: 13px;
-    color: var(--text);
     max-width: 560px;
     margin: 1.5rem auto;
     padding: 0 1rem;
@@ -89,7 +97,7 @@
       <div class="ext-button"><img src="../extension/images/icon-512.png" alt=""></div>
     </div>
 
-    <div class="page ui">
+    <div class="page">
       <!-- extension/options.html's body -->
       <div class="doc">
         <h1>Excluded pages</h1>
