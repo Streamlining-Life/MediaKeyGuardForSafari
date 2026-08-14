@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{THEME}}">
+<head>
+<meta charset="utf-8">
+<title>App Store shot — toolbar popup</title>
+<link rel="stylesheet" href="shotcanvas.css">
+<!--
+  App Store screenshot canvas: the toolbar popup, hanging off a rebuilt Safari
+  toolbar over a generated wallpaper.
+
+  The popup below is extension/popup.html's own markup and CSS, re-rendered at
+  final size rather than enlarged from a capture. The toolbar icon is the real
+  icon file and {{VERSION}} is stamped from Version.xcconfig by make-shots.sh,
+  so neither can drift from the shipped release. Only the state sentence is
+  hand-written — it comes from popup.js talking to Safari's tab API, which
+  cannot run here; keep it in step with render() in extension/popup.js.
+-->
+<style>
+  /* 576x360 at 2.5x is 1440x900, which the 2x render turns into 2880x1800.
+     The popup is 284px wide, so it takes half the frame's width and four
+     fifths of its height — the zoomed-in framing, with enough of the toolbar
+     above it to place where the popup came from. */
+  .frame {
+    width: 576px;
+    height: 360px;
+    zoom: 2.5;
+  }
+  .toolbar { height: 46px; }
+  .toolbar .spacer { flex: .6; }
+  .toolbar .pill { flex: 1; }
+
+  /* Anchored under the toolbar button, the way Safari drops a popover. The
+     pointer is centred on the button (x 269), not on the panel. */
+  .popup {
+    position: absolute;
+    z-index: 2;
+    top: 54px;
+    left: 127px;
+  }
+  .pointer {
+    top: 48px;
+    left: 261px;
+  }
+
+  /* ---- extension/popup.html's own stylesheet ------------------------- */
+  .popup {
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    width: 260px;
+    margin: 0;
+    padding: 12px;
+  }
+  .popup h1 { font-size: 14px; margin: 0 0 8px; }
+  .popup #state { font-weight: 600; margin: 0 0 10px; }
+  .popup #state.active { color: #2e8b57; }
+  .popup #state.excluded { color: #b04a4a; }
+  .popup button {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    margin: 6px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .popup #limit { margin-top: 10px; border-top: 1px solid #8884; padding-top: 8px; }
+  .popup #limit label { display: block; font-size: 11px; opacity: .75; margin-bottom: 4px; }
+  .popup .row { display: flex; align-items: center; gap: 6px; }
+  .popup .row input { width: 56px; padding: 5px; font: inherit; }
+  .popup .row button { width: auto; flex: 1; margin: 0; }
+  .popup .links { margin-top: 10px; border-top: 1px solid #8884; padding-top: 8px; }
+  .popup .links a { display: block; margin: 4px 0; }
+  .popup #version { opacity: .6; font-size: 11px; margin-top: 8px; }
+
+  /* ---- the panel macOS draws around it ------------------------------- */
+  /* Colours and the glass itself come from .glass in shotcanvas.css. */
+  .popup {
+    box-sizing: content-box;
+    border-radius: 14px;
+  }
+  .popup #state.active { color: #2e8b57; }
+  .popup #limit { border-top-color: var(--hairline); }
+  .popup .links { border-top-color: var(--hairline); }
+  .popup #limit label,
+  .popup #version { color: var(--text-dim); opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="toolbar">
+    <div class="lights"><i></i><i></i><i></i></div>
+    <div class="spacer"></div>
+    <div class="ext-button"><img src="../extension/images/icon-512.png" alt=""></div>
+    <div class="pill">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4 14 14"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="pointer glass"></div>
+
+  <!-- extension/popup.html's body, in the state popup.js renders for a site
+       carrying a 12-second override. -->
+  <div class="popup ui glass">
+    <h1>MediaKeyGuard</h1>
+    <p id="state" class="active">Guard active — sounds up to 12s ✅</p>
+    <button id="toggle" class="focused">Exclude this site</button>
+    <div id="limit">
+      <label for="secs">Treat sounds up to this long as notifications:</label>
+      <div class="row">
+        <input id="secs" type="number" min="1" max="600" step="1" value="12">
+        <span>sec</span>
+        <button id="apply">Apply</button>
+      </div>
+      <button id="clear">Back to 5s default</button>
+    </div>
+    <div class="links">
+      <a href="#" id="options">Edit site lists…</a>
+      <a href="https://github.com/Streamlining-Life/MediaKeyGuardForSafari#readme">Help / About</a>
+    </div>
+    <p id="version">v{{VERSION}}</p>
+  </div>
+</div>
+
+</body>
+</html>

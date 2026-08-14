@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{THEME}}">
+<head>
+<meta charset="utf-8">
+<title>App Store shot — site lists</title>
+<link rel="stylesheet" href="shotcanvas.css">
+<!--
+  App Store screenshot canvas: the site-list editor, in a rebuilt Safari window
+  over the same generated wallpaper as the popup shot.
+
+  The page below is extension/options.html's own markup and CSS. The tab title
+  ({{OPTIONS_TITLE}}) is stamped from that file's <title> by make-shots.sh and
+  the tab icon is the real icon file, so both track the shipped release.
+
+  The two boxes are filled with what options.js would load out of storage —
+  one line per pattern shape the matcher accepts, so the screenshot doubles as
+  documentation of the syntax.
+-->
+<style>
+  /* 1286x804 at 1.12x is 1440x900. The page is 560px wide and ~700 tall, so
+     the zoom is set by how much of that fits: any more and the Save button
+     falls off the bottom. */
+  .frame { width: 1286px; height: 804px; zoom: 1.12; }
+
+  /* A Safari window sitting on the desktop, rather than the popup shot's
+     zoomed-in framing: the page reads better whole than cropped, and a window
+     only a little wider than its text column keeps the column dominant. */
+  .window {
+    position: absolute;
+    top: 12px;
+    left: 193px;
+    width: 900px;
+    height: 780px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+      0 30px 80px var(--panel-edge),
+      0 6px 18px rgba(0, 0, 0, .30),
+      inset 0 0 0 .5px var(--panel-rim);
+  }
+  .toolbar { height: 46px; }
+  .window .pill { max-width: 380px; flex: none; width: 380px; }
+
+  /* The page itself is ordinary web content, so it is opaque — only the
+     toolbar above it is glass. */
+  .page {
+    height: calc(100% - 46px);
+    overflow: hidden;
+    background: var(--page-bg);
+  }
+
+  /* ---- extension/options.html's own stylesheet ----------------------- */
+  .page .doc {
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    max-width: 560px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+  }
+  .page h1 { font-size: 16px; }
+  .page h1 + p { margin-top: 0; }
+  .page h1:not(:first-of-type) { margin-top: 2rem; border-top: 1px solid #8884; padding-top: 1.25rem; }
+  .page textarea {
+    width: 100%;
+    min-height: 120px;
+    font: 12px ui-monospace, monospace;
+    box-sizing: border-box;
+  }
+  .page table { border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+  .page td, .page th { border: 1px solid #8884; padding: 3px 8px; text-align: left; }
+  .page td:last-child { font-family: ui-monospace, monospace; }
+  .page #save { padding: 6px 16px; border-radius: 6px; cursor: pointer; }
+  .page #msg { margin-left: 10px; }
+  .page #msg.ok { color: #2e8b57; }
+  .page .warn { font-size: 12px; opacity: .75; }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="window">
+    <div class="toolbar">
+      <div class="lights"><i></i><i></i><i></i></div>
+      <div class="pill">
+        <img src="../extension/images/icon-512.png" alt="">
+        <span>{{OPTIONS_TITLE}}</span>
+      </div>
+      <div class="ext-button"><img src="../extension/images/icon-512.png" alt=""></div>
+    </div>
+
+    <div class="page ui">
+      <!-- extension/options.html's body -->
+      <div class="doc">
+        <h1>Excluded pages</h1>
+        <p>Pages matching any pattern below get Safari's default media-key behaviour —
+           sounds there can take over the play/pause key again. One pattern per line;
+           lines starting with <code>#</code> are comments. Changes apply on the next
+           page load.</p>
+        <textarea id="list" spellcheck="false"># one exact page
+teams.microsoft.com/l/meetup-join/abc
+# a path section
+example.com/mail/*
+# one subdomain
+mail.example.com/*
+# whole domain and every subdomain
+*.example.com/*</textarea>
+
+        <table>
+          <tr><th>To exclude…</th><th>Pattern</th></tr>
+          <tr><td>One exact page</td><td>teams.microsoft.com/l/meetup-join/abc</td></tr>
+          <tr><td>A path section</td><td>example.com/mail/*</td></tr>
+          <tr><td>One subdomain</td><td>mail.example.com/*</td></tr>
+          <tr><td>Whole domain + subdomains</td><td>*.example.com/*</td></tr>
+        </table>
+
+        <h1>Longer notification sounds</h1>
+        <p>By default a sound of <b>5 seconds or less</b> counts as a notification and
+           gives the media keys back when it finishes; anything longer is treated as
+           real media and left alone. Some sites use chimes longer than that, so they
+           keep the keys. Raise the limit for those sites here — same patterns as
+           above, plus <code>= seconds</code>:</p>
+        <textarea id="overrides" spellcheck="false">teams.microsoft.com/* = 12
+*.slack.com/* = 10
+mail.example.com/* = 8
+# a single page with a long chime
+example.com/calendar/reminders = 20</textarea>
+        <p class="warn">Only raise it as far as the site's chime actually needs. Real
+           media on that site shorter than the limit — a voice note, a short clip —
+           will also hand the keys back when it ends.</p>
+
+        <p><button id="save">Save</button><span id="msg" class="ok">Saved ✓</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

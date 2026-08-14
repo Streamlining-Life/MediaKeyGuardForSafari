@@ -18,6 +18,17 @@
 			name = "Uninstall All";
 			productName = "Uninstall All";
 		};
+		A1C0FFEE0000000000000051 /* Make Screenshots */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = A1C0FFEE0000000000000053 /* Build configuration list for PBXAggregateTarget "Make Screenshots" */;
+			buildPhases = (
+				A1C0FFEE0000000000000052 /* Render the App Store screenshots */,
+			);
+			dependencies = (
+			);
+			name = "Make Screenshots";
+			productName = "Make Screenshots";
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -265,6 +276,7 @@
 				52437F8B302B875100A2F27A /* MediaKeyGuardForSafari */,
 				52437FA6302B875300A2F27A /* MediaKeyGuardForSafari Extension */,
 				A1C0FFEE0000000000000041 /* Uninstall All */,
+				A1C0FFEE0000000000000051 /* Make Screenshots */,
 			);
 		};
 /* End PBXProject section */
@@ -340,6 +352,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# -y because a build phase has no stdin: the script's confirmation\n# prompt would hang the build waiting for an answer nobody can give.\n\"$SRCROOT/../../tools/uninstall-all.sh\" -y\n";
+		};
+		A1C0FFEE0000000000000052 /* Render the App Store screenshots */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Render the App Store screenshots";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/../../tools/make-shots.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -674,6 +705,27 @@
 			};
 			name = Release;
 		};
+		A1C0FFEE0000000000000054 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				/* The script writes to shots/ and drives Chrome, both outside the
+				   build directory — same reason the other script targets here turn
+				   sandboxing off. */
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A1C0FFEE0000000000000055 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -709,6 +761,15 @@
 			buildConfigurations = (
 				A1C0FFEE0000000000000044 /* Debug */,
 				A1C0FFEE0000000000000045 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1C0FFEE0000000000000053 /* Build configuration list for PBXAggregateTarget "Make Screenshots" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C0FFEE0000000000000054 /* Debug */,
+				A1C0FFEE0000000000000055 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
