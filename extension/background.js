@@ -34,15 +34,20 @@ function setBadge(tabId, text) {
 quietly(() => api.action.setBadgeBackgroundColor({ color: '#3a6ea5' }));
 
 // Set the icon (and override badge) for one tab based on its URL vs the lists.
+// Every caller fires this and walks away, so it swallows its own failures: a
+// tab can close between the event and the paint, and setIcon on a dead tabId
+// rejects. Nothing here is worth an unhandled rejection in the worker.
 async function refreshTab(tabId, url) {
   if (!url || !/^https?:/.test(url)) return; // ignore internal pages
-  const { exclusions, overrides } =
-    await api.storage.local.get({ exclusions: [], overrides: [] });
-  const excluded = mkgMatcher.isExcluded(url, exclusions);
-  // An excluded page runs no guard at all, so its override is moot.
-  const threshold = excluded ? null : mkgMatcher.thresholdFor(url, overrides);
-  api.action.setIcon({ tabId, path: excluded ? GREY : COLOURED });
-  setBadge(tabId, threshold ? `${threshold}s` : '');
+  try {
+    const { exclusions, overrides } =
+      await api.storage.local.get({ exclusions: [], overrides: [] });
+    const excluded = mkgMatcher.isExcluded(url, exclusions);
+    // An excluded page runs no guard at all, so its override is moot.
+    const threshold = excluded ? null : mkgMatcher.thresholdFor(url, overrides);
+    await api.action.setIcon({ tabId, path: excluded ? GREY : COLOURED });
+    setBadge(tabId, threshold ? `${threshold}s` : '');
+  } catch (e) { /* tab went away before we could paint it */ }
 }
 
 api.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -50,8 +55,10 @@ api.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 api.tabs.onActivated.addListener(async ({ tabId }) => {
-  const tab = await api.tabs.get(tabId);
-  refreshTab(tabId, tab.url);
+  try {
+    const tab = await api.tabs.get(tabId);
+    refreshTab(tabId, tab.url);
+  } catch (e) { /* tab closed between the event and the lookup */ }
 });
 
 // A site list changed (popup or options page) — refresh every open tab so

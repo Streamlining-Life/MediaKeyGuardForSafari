@@ -55,9 +55,10 @@ class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHan
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if (message.body as! String != "open-preferences") {
-            return;
-        }
+        // as? not as! — a force cast traps the whole app on any body that isn't
+        // a String. Only Script.js posts here and it posts that one string, but
+        // a crash is a steep price for a message we can simply ignore.
+        guard message.body as? String == "open-preferences" else { return }
 
         SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
             DispatchQueue.main.async {

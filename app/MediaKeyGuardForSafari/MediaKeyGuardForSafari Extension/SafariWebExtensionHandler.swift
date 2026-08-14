@@ -6,22 +6,16 @@
 //
 
 import SafariServices
-import os.log
 
+// Required: the appex's Info.plist names this as NSExtensionPrincipalClass, so
+// the class has to exist for the extension to load. It never runs — nothing
+// calls browser.runtime.sendNativeMessage, and manifest.json doesn't request
+// the nativeMessaging permission it would need to. The Xcode template's echo
+// and os_log body is gone; there is no message to echo or log.
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     func beginRequest(with context: NSExtensionContext) {
-        let request = context.inputItems.first as? NSExtensionItem
-
-        let profile = request?.userInfo?[SFExtensionProfileKey] as? UUID
-        let message = request?.userInfo?[SFExtensionMessageKey]
-
-        os_log(.default, "Received message from browser.runtime.sendNativeMessage: %@ (profile: %@)", String(describing: message), profile?.uuidString ?? "none")
-
-        let response = NSExtensionItem()
-        response.userInfo = [ SFExtensionMessageKey: [ "echo": message ] ]
-
-        context.completeRequest(returningItems: [ response ], completionHandler: nil)
+        context.completeRequest(returningItems: [], completionHandler: nil)
     }
 
 }
