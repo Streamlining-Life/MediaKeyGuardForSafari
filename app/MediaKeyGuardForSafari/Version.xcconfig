@@ -10,8 +10,8 @@
 // drift this file exists to prevent. Edit here, nowhere else.
 //
 // tools/sync-resources.sh reads MARKETING_VERSION out of this file and
-// stamps it into extension/manifest.json, which is what the popup's footer
-// shows (runtime.getManifest() can't see the bundle's version).
+// stamps it into extension/manifest.json, which must carry a version of its
+// own and should agree with the app's.
 
 // User-facing version. Numeric only — App Store Connect rejects letters, and
 // manifest.json accepts at most 4 dot-separated integers. Betas are a

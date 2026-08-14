@@ -14,9 +14,6 @@
   const applyEl = document.getElementById('apply');
   const clearEl = document.getElementById('clear');
 
-  document.getElementById('version').textContent =
-    `v${api.runtime.getManifest().version}`;
-
   document.getElementById('options').addEventListener('click', (e) => {
     e.preventDefault();
     api.runtime.openOptionsPage();

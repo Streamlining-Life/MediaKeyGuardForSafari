@@ -13,9 +13,8 @@
 
   The popup is extension/popup.html's markup and CSS, re-rendered at final
   size rather than enlarged from a capture. The toolbar icon is the real icon
-  file and {{VERSION}} is stamped from Version.xcconfig by make-shots.sh, so
-  neither can drift from the shipped release. Only the state sentence is
-  hand-written — it comes from popup.js talking to Safari's tab API, which
+  file, so it cannot drift from the shipped release. Only the state sentence
+  is hand-written — it comes from popup.js talking to Safari's tab API, which
   cannot run here; keep it in step with render() in extension/popup.js.
 -->
 <style>
@@ -74,7 +73,6 @@
   .popup .row button { width: auto; flex: 1; margin: 0; }
   .popup .links { margin-top: 10px; border-top: 1px solid #8884; padding-top: 8px; }
   .popup .links a { display: block; margin: 4px 0; }
-  .popup #version { opacity: .6; font-size: 11px; margin-top: 8px; }
 
   /* ---- the panel macOS draws around it ------------------------------- */
   /* Only the panel: its glass comes from .glass in shotcanvas.css, its text
@@ -131,7 +129,6 @@
       <a href="#" id="options">Edit site lists…</a>
       <a href="https://github.com/Streamlining-Life/MediaKeyGuardForSafari#readme">Help / About</a>
     </div>
-    <p id="version">v{{VERSION}}</p>
   </div>
 </div>
 

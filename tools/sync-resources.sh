@@ -18,8 +18,8 @@ XCCONFIG="$ROOT/app/MediaKeyGuardForSafari/Version.xcconfig"
 # rather than treating absence as an error.
 mkdir -p "$DEST"
 
-# Version.xcconfig is the one place versions are set; manifest.json carries
-# its own copy because runtime.getManifest() is all the popup footer can read.
+# Version.xcconfig is the one place versions are set; manifest.json must
+# carry a version of its own, kept in step here.
 # Stamp SRC (not just DEST) so the committed source stays honest and the bump
 # shows up in the diff — the rsync below then carries it into the appex.
 VERSION="$(sed -n 's/^[[:space:]]*MARKETING_VERSION[[:space:]]*=[[:space:]]*//p' "$XCCONFIG" | tr -d '[:space:]')"
