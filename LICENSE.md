@@ -1,3 +1,12 @@
+> **Scope note (not part of the license below).** These terms govern this
+> *source code*. Copies of the app obtained from the Mac App Store are licensed
+> instead under Apple's standard Licensed Application End User License
+> Agreement, which Apple applies to everything it distributes:
+> <https://www.apple.com/legal/internet-services/itunes/dev/stdeula/>.
+> Gareth Blain holds the copyright and grants both, so there is no conflict:
+> the terms below restrict what *other people* may do with the source, and
+> never restrict the copyright holder.
+
 # PolyForm Noncommercial License 1.0.0
 
 <https://polyformproject.org/licenses/noncommercial/1.0.0>

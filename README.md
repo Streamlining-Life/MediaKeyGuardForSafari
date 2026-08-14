@@ -112,5 +112,12 @@ downloading.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](LICENSE.md) — free to use, fork, and modify for
-any noncommercial purpose; selling it (or derivatives) isn't permitted.
+**Source:** [PolyForm Noncommercial 1.0.0](LICENSE.md) — free to use, fork, and
+modify for any noncommercial purpose; selling it (or derivatives) isn't
+permitted.
+
+**Mac App Store copies:** Apple's
+[standard Licensed Application EULA](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/),
+which Apple applies to everything it distributes. Same author, two channels,
+two licenses — the PolyForm terms restrict other people, not the copyright
+holder.
