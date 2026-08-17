@@ -4,9 +4,9 @@
 Draws a flat rounded-square badge with two white "pause bars" (media-key
 motif). Produces three sets:
 
-  extension/images/icon-*.png        coloured — manifest + active toolbar state
-  extension/images/icon-*-grey.png   grey — toolbar state when a page is excluded
-  app icon set                       macOS AppIcon.appiconset PNGs + Contents.json
+  the extension's images/icon-*.png       coloured — manifest + active toolbar
+  the extension's images/icon-*-grey.png  grey — toolbar state on an excluded page
+  app icon set                            macOS AppIcon.appiconset + Contents.json
 
 Run from anywhere:  python3 tools/make_icons.py
 """
@@ -17,7 +17,9 @@ import sys
 import zlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EXT_IMAGES = os.path.join(ROOT, 'extension', 'images')
+EXT_IMAGES = os.path.join(
+    ROOT, 'app', 'MediaKeyGuardForSafari', 'MediaKeyGuardForSafari Extension',
+    'Resources', 'images')
 APPICONSET = os.path.join(
     ROOT, 'app', 'MediaKeyGuardForSafari', 'MediaKeyGuardForSafari',
     'Assets.xcassets', 'AppIcon.appiconset')

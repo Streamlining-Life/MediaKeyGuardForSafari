@@ -222,7 +222,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 52437FB1302B875300A2F27A /* Build configuration list for PBXNativeTarget "MediaKeyGuardForSafari Extension" */;
 			buildPhases = (
-				A1C0FFEE0000000000000031 /* Sync extension resources */,
+				A1C0FFEE0000000000000031 /* Stamp version into manifest */,
 				52437FA3302B875300A2F27A /* Sources */,
 				52437FA4302B875300A2F27A /* Frameworks */,
 				52437FA5302B875300A2F27A /* Resources */,
@@ -315,7 +315,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		A1C0FFEE0000000000000031 /* Sync extension resources */ = {
+		A1C0FFEE0000000000000031 /* Stamp version into manifest */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -325,14 +325,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Sync extension resources";
+			name = "Stamp version into manifest";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$SRCROOT/../../tools/sync-resources.sh\"\n";
+			shellScript = "\"$SRCROOT/../../tools/stamp-version.sh\"\n";
 		};
 		A1C0FFEE0000000000000042 /* Uninstall every installed copy */ = {
 			isa = PBXShellScriptBuildPhase;

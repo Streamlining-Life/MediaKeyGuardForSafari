@@ -10,7 +10,7 @@
   via tools/make-shots.sh — the textareas, table and Save button are WebKit's
   own rendering of the extension's stylesheet.
 
-  The page below is extension/options.html's own markup and CSS. The tab title
+  The page below is the extension's options.html markup and CSS. The tab title
   ({{OPTIONS_TITLE}}) is stamped from that file's <title> by make-shots.sh and
   the tab icon is the real icon file, so both track the shipped release.
 
@@ -58,7 +58,7 @@
     color: CanvasText;
   }
 
-  /* ---- extension/options.html's own stylesheet, verbatim -------------- */
+  /* ---- the extension's options.html stylesheet, verbatim -------------- */
   .page .doc {
     font-family: -apple-system, sans-serif;
     font-size: 13px;
@@ -91,14 +91,14 @@
     <div class="toolbar">
       <div class="lights"><i></i><i></i><i></i></div>
       <div class="pill">
-        <img src="../extension/images/icon-512.png" alt="">
+        <img src="../app/MediaKeyGuardForSafari/MediaKeyGuardForSafari%20Extension/Resources/images/icon-512.png" alt="">
         <span>{{OPTIONS_TITLE}}</span>
       </div>
-      <div class="ext-button"><img src="../extension/images/icon-512.png" alt=""></div>
+      <div class="ext-button"><img src="../app/MediaKeyGuardForSafari/MediaKeyGuardForSafari%20Extension/Resources/images/icon-512.png" alt=""></div>
     </div>
 
     <div class="page">
-      <!-- extension/options.html's body -->
+      <!-- the extension's options.html body -->
       <div class="doc">
         <h1>Excluded pages</h1>
         <p>Pages matching any pattern below get Safari's default media-key behaviour —

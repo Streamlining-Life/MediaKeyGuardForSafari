@@ -23,7 +23,7 @@
 # Anything that could drift from the shipped release is stamped in here
 # rather than typed into the canvas: the version from Version.xcconfig, the
 # site-list tab title from options.html. The icons are referenced straight
-# out of extension/images/.
+# out of the extension's images/ folder.
 #
 # Re-run after any UI change — or use the "Make Screenshots" scheme in Xcode
 # (output lands in the build log: Report navigator, latest Build, expand the
@@ -42,8 +42,9 @@ VERSION="$(sed -n 's/^[[:space:]]*MARKETING_VERSION[[:space:]]*=[[:space:]]*//p'
 
 # The window title in the site-list shot is the page's real <title>, so
 # renaming the page renames it in the screenshot too.
-OPTIONS_TITLE="$(sed -n 's|.*<title>\(.*\)</title>.*|\1|p' "$ROOT/extension/options.html" | head -1)"
-[ -n "$OPTIONS_TITLE" ] || { echo "no <title> in extension/options.html" >&2; exit 1; }
+EXT_RES="$ROOT/app/MediaKeyGuardForSafari/MediaKeyGuardForSafari Extension/Resources"
+OPTIONS_TITLE="$(sed -n 's|.*<title>\(.*\)</title>.*|\1|p' "$EXT_RES/options.html" | head -1)"
+[ -n "$OPTIONS_TITLE" ] || { echo "no <title> in $EXT_RES/options.html" >&2; exit 1; }
 
 python3 -c 'import PIL' 2>/dev/null \
   || { echo "needs Pillow for the sentinel crop: python3 -m pip install Pillow" >&2; exit 1; }

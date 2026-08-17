@@ -9,8 +9,8 @@
 // target-level override, which beats this file and silently reintroduces the
 // drift this file exists to prevent. Edit here, nowhere else.
 //
-// tools/sync-resources.sh reads MARKETING_VERSION out of this file and
-// stamps it into extension/manifest.json, which must carry a version of its
+// tools/stamp-version.sh reads MARKETING_VERSION out of this file and stamps
+// it into the extension's manifest.json, which must carry a version of its
 // own and should agree with the app's.
 
 // User-facing version. Numeric only — App Store Connect rejects letters, and

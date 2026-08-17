@@ -11,11 +11,11 @@
   the focus ring on the autofocused button — is drawn by WebKit itself from
   the extension's own stylesheet. Nothing here styles a control.
 
-  The popup is extension/popup.html's markup and CSS, re-rendered at final
+  The popup is the extension's popup.html markup and CSS, re-rendered at final
   size rather than enlarged from a capture. The toolbar icon is the real icon
   file, so it cannot drift from the shipped release. Only the state sentence
   is hand-written — it comes from popup.js talking to Safari's tab API, which
-  cannot run here; keep it in step with render() in extension/popup.js.
+  cannot run here; keep it in step with render() in the extension's popup.js.
 -->
 <style>
   /* The design grid is 576x360; zoom 5 lays it out at 2880x1800 CSS px,
@@ -46,7 +46,7 @@
     left: 257px;
   }
 
-  /* ---- extension/popup.html's own stylesheet, verbatim ---------------- */
+  /* ---- the extension's popup.html stylesheet, verbatim ---------------- */
   .popup {
     font-family: -apple-system, sans-serif;
     font-size: 13px;
@@ -99,7 +99,7 @@
   <div class="toolbar">
     <div class="lights"><i></i><i></i><i></i></div>
     <div class="spacer"></div>
-    <div class="ext-button"><img src="../extension/images/icon-512.png" alt=""></div>
+    <div class="ext-button"><img src="../app/MediaKeyGuardForSafari/MediaKeyGuardForSafari%20Extension/Resources/images/icon-512.png" alt=""></div>
     <div class="pill">
       <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
         <circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4 14 14"/>
@@ -109,7 +109,7 @@
 
   <div class="pointer-clip"><div class="pointer glass"></div></div>
 
-  <!-- extension/popup.html's body, in the state popup.js renders for a site
+  <!-- the extension's popup.html body, in the state popup.js renders for a site
        carrying a 12-second override. autofocus puts Safari's own focus ring
        on the first button, as a freshly opened popup has. -->
   <div class="popup glass">
