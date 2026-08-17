@@ -2,6 +2,12 @@
 # Remove every installed copy of the app and its Safari extension, wherever it
 # came from — Xcode build, TestFlight, App Store, a stray copy in Downloads.
 #
+# TestFlight and App Store copies are the one thing this script cannot delete
+# for you: they are installed as root, so an unprivileged rm -rf fails partway
+# into the bundle. Those are detected up front and the run refuses to start
+# until you have moved them to the Trash in Finder yourself. So a run that
+# finishes has removed everything.
+#
 # macOS has no install slot. An app is a folder, and LaunchServices indexes
 # every copy it finds rather than replacing one with the next, so two copies
 # sharing a bundle ID both register and Safari ends up with two extensions
@@ -12,9 +18,9 @@
 # Run this before switching channels (dev <-> TestFlight <-> App Store) so
 # exactly one copy is ever installed, then install the one you want to test.
 #
-# Every copy is deleted outright: build products are regenerable, and a
-# TestFlight or App Store copy is a re-download away, so there is nothing worth
-# leaving in the Trash. Pass --trash if you want them kept there anyway.
+# Every copy it removes is deleted outright: build products are regenerable and
+# a released copy is a re-download away, so there is nothing worth leaving in
+# the Trash. Pass --trash if you want them kept there anyway.
 # Archives are the one exception and are left alone unless asked for: they carry
 # the dSYMs needed to symbolicate crash reports from shipped builds.
 set -eu
@@ -146,6 +152,26 @@ while IFS= read -r app; do
 	esac
 done < "$WORK/paths"
 
+# A copy installed by TestFlight or the App Store is owned by root. /Applications
+# is group-writable, so the unlink can look permitted right up until rm -rf
+# recurses into root-owned contents and stops — leaving a half-deleted bundle,
+# which is worse than not starting. Nothing unprivileged can remove these, and
+# escalating is not an option: the rest of this script writes to $HOME, so
+# running it under sudo would leave root-owned droppings there. Find them before
+# anything is touched and refuse the whole run instead.
+BLOCKED="$WORK/blocked"
+: > "$BLOCKED"
+while IFS="$(printf '\t')" read -r kind path; do
+	case "$kind" in
+		remove|build) ;;
+		*) continue ;;
+	esac
+	[ -e "$path" ] || continue
+	if [ "$(stat -f %u "$path" 2>/dev/null)" != "$(id -u)" ]; then
+		printf '%s\n' "$path" >> "$BLOCKED"
+	fi
+done < "$PLAN"
+
 # Clearing the whole DerivedData tree is the surest way to drop old build hashes
 # — but never from inside a build phase. That tree holds the build database the
 # running build is using, and pulling it out mid-build kills the build with
@@ -171,7 +197,9 @@ echo "found:"
 while IFS="$(printf '\t')" read -r kind path; do
 	case "$kind" in
 		remove)
-			if [ "$USE_TRASH" -eq 1 ]; then
+			if grep -Fxq "$path" "$BLOCKED"; then
+				echo "  MOVE BY HAND    $path"
+			elif [ "$USE_TRASH" -eq 1 ]; then
 				echo "  move to Trash   $path"
 			else
 				echo "  delete          $path"
@@ -195,6 +223,23 @@ if [ "$DRY" -eq 1 ]; then
 	echo
 	echo "dry run — nothing changed"
 	exit 0
+fi
+
+# Same shape as the Safari check: stop before anything is removed, so the run is
+# all-or-nothing. No --force here — force lets you proceed with Safari open,
+# but nothing lets this proceed, and a partial uninstall is the exact mess this
+# script exists to prevent.
+if [ -s "$BLOCKED" ]; then
+	echo >&2
+	echo "these copies are owned by root and cannot be removed by this script:" >&2
+	sed 's/^/  /' "$BLOCKED" >&2
+	# Put the first one on screen so the drag to the Trash is one gesture away.
+	# Never from inside a build phase: Finder taking focus mid-build is not
+	# something a build should do.
+	if [ -z "${XCODE_VERSION_ACTUAL:-}" ]; then
+		open -R "$(head -1 "$BLOCKED")" 2>/dev/null || true
+	fi
+	die "move them to the Trash in Finder, then run this again"
 fi
 
 if [ "$ASSUME_YES" -eq 0 ]; then
