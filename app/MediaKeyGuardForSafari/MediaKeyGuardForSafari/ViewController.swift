@@ -7,60 +7,101 @@
 
 import Cocoa
 import SafariServices
-import WebKit
 
 let extensionBundleIdentifier = "Life.Streamlining.MediaKeyGuardForSafari.Extension"
 
-class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHandler {
+class ViewController: NSViewController {
 
-    @IBOutlet var webView: WKWebView!
+    private let stateLabel = NSTextField(wrappingLabelWithString: "You can turn on Media Key Guard for Safari’s extension in the Extensions section of Safari Settings.")
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.webView.navigationDelegate = self
-
-        self.webView.configuration.userContentController.add(self, name: "controller")
-
-        self.webView.loadFileURL(Bundle.main.url(forResource: "Main", withExtension: "html")!, allowingReadAccessTo: Bundle.main.resourceURL!)
+        buildInterface()
     }
 
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { (state, error) in
-            guard let state = state, error == nil else {
-                // Insert code to inform the user that something went wrong.
-                return
-            }
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        refreshExtensionState()
+    }
+
+    private func buildInterface() {
+        let icon = NSImageView(image: NSApp.applicationIconImage)
+        icon.translatesAutoresizingMaskIntoConstraints = false
+
+        let title = NSTextField(labelWithString: "Media Key Guard for Safari")
+        title.font = .boldSystemFont(ofSize: 18)
+
+        let tagline = NSTextField(wrappingLabelWithString: """
+            Stops short notification sounds (Teams, Slack, web mail…) from \
+            stealing your Mac's play/pause key away from Spotify or Music. \
+            Real media — videos, podcasts, live streams — keeps working normally.
+            """)
+        tagline.alignment = .center
+
+        stateLabel.alignment = .center
+
+        let openSettingsButton = NSButton(title: "Quit and Open Safari Settings…",
+                                          target: self,
+                                          action: #selector(openSafariSettings))
+
+        let stack = NSStackView(views: [icon, title, tagline, stateLabel, openSettingsButton, makeFootnote()])
+        stack.orientation = .vertical
+        stack.alignment = .centerX
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            icon.widthAnchor.constraint(equalToConstant: 96),
+            icon.heightAnchor.constraint(equalToConstant: 96),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            stack.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: 20),
+            stack.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -20),
+        ])
+    }
+
+    private func makeFootnote() -> NSTextField {
+        let text = """
+            Once enabled, allow it on the sites you use (or all websites), \
+            then use the toolbar icon to exclude any site you want left alone.
+            Help & source: github.com/Streamlining-Life/MediaKeyGuardForSafari
+            """
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+
+        let footnote = NSMutableAttributedString(string: text, attributes: [
+            .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
+            .foregroundColor: NSColor.secondaryLabelColor,
+            .paragraphStyle: paragraph,
+        ])
+        footnote.addAttribute(.link,
+                              value: URL(string: "https://github.com/Streamlining-Life/MediaKeyGuardForSafari#readme")!,
+                              range: (text as NSString).range(of: "github.com/Streamlining-Life/MediaKeyGuardForSafari"))
+
+        let label = NSTextField(wrappingLabelWithString: "")
+        label.attributedStringValue = footnote
+        // Both required for the .link attribute to be clickable in a label.
+        label.isSelectable = true
+        label.allowsEditingTextAttributes = true
+        return label
+    }
+
+    private func refreshExtensionState() {
+        SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { state, error in
+            guard let state, error == nil else { return }
 
             DispatchQueue.main.async {
-                webView.evaluateJavaScript("show(\(state.isEnabled), true)")
+                self.stateLabel.stringValue = state.isEnabled
+                    ? "Media Key Guard for Safari’s extension is currently on. You can turn it off in the Extensions section of Safari Settings."
+                    : "Media Key Guard for Safari’s extension is currently off. You can turn it on in the Extensions section of Safari Settings."
             }
         }
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        // Main.html is loaded from file:// — the only other navigation it can
-        // start is the help link, which belongs in the user's browser. Handing
-        // it to NSWorkspace instead of loading it here keeps the app off the
-        // network entirely, so it needs no outgoing-connection entitlement.
-        guard let url = navigationAction.request.url, !url.isFileURL else {
-            decisionHandler(.allow)
-            return
-        }
-
-        if url.scheme == "http" || url.scheme == "https" {
-            NSWorkspace.shared.open(url)
-        }
-        decisionHandler(.cancel)
-    }
-
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        // as? not as! — a force cast traps the whole app on any body that isn't
-        // a String. Only Script.js posts here and it posts that one string, but
-        // a crash is a steep price for a message we can simply ignore.
-        guard message.body as? String == "open-preferences" else { return }
-
-        SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
+    @objc private func openSafariSettings(_ sender: Any?) {
+        SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { _ in
             DispatchQueue.main.async {
                 NSApplication.shared.terminate(nil)
             }
