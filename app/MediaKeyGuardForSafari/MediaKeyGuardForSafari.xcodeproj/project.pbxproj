@@ -33,10 +33,6 @@
 
 /* Begin PBXBuildFile section */
 		52437F90302B875100A2F27A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52437F8F302B875100A2F27A /* AppDelegate.swift */; };
-		52437F94302B875100A2F27A /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 52437F92302B875100A2F27A /* Main.html */; };
-		52437F96302B875100A2F27A /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 52437F95302B875100A2F27A /* Icon.png */; };
-		52437F98302B875100A2F27A /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 52437F97302B875100A2F27A /* Style.css */; };
-		52437F9A302B875100A2F27A /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 52437F99302B875100A2F27A /* Script.js */; };
 		52437F9C302B875100A2F27A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52437F9B302B875100A2F27A /* ViewController.swift */; };
 		52437F9F302B875100A2F27A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 52437F9D302B875100A2F27A /* Main.storyboard */; };
 		52437FA1302B875300A2F27A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 52437FA0302B875300A2F27A /* Assets.xcassets */; };
@@ -81,10 +77,6 @@
 /* Begin PBXFileReference section */
 		52437F8C302B875100A2F27A /* MediaKeyGuardForSafari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MediaKeyGuardForSafari.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52437F8F302B875100A2F27A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		52437F93302B875100A2F27A /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
-		52437F95302B875100A2F27A /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		52437F97302B875100A2F27A /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
-		52437F99302B875100A2F27A /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
 		52437F9B302B875100A2F27A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		52437F9E302B875100A2F27A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		52437FA0302B875300A2F27A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -150,20 +142,8 @@
 				52437F9D302B875100A2F27A /* Main.storyboard */,
 				52437FA0302B875300A2F27A /* Assets.xcassets */,
 				52437FA2302B875300A2F27A /* Info.plist */,
-				52437F91302B875100A2F27A /* Resources */,
 			);
 			path = MediaKeyGuardForSafari;
-			sourceTree = "<group>";
-		};
-		52437F91302B875100A2F27A /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				52437F92302B875100A2F27A /* Main.html */,
-				52437F95302B875100A2F27A /* Icon.png */,
-				52437F97302B875100A2F27A /* Style.css */,
-				52437F99302B875100A2F27A /* Script.js */,
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 		52437FAB302B875300A2F27A /* MediaKeyGuardForSafari Extension */ = {
@@ -286,12 +266,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				52437F96302B875100A2F27A /* Icon.png in Resources */,
 				52437F9F302B875100A2F27A /* Main.storyboard in Resources */,
-				52437F9A302B875100A2F27A /* Script.js in Resources */,
-				52437F94302B875100A2F27A /* Main.html in Resources */,
 				52437FA1302B875300A2F27A /* Assets.xcassets in Resources */,
-				52437F98302B875100A2F27A /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,14 +379,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		52437F92302B875100A2F27A /* Main.html */ = {
-			isa = PBXVariantGroup;
-			children = (
-				52437F93302B875100A2F27A /* Base */,
-			);
-			name = Main.html;
-			sourceTree = "<group>";
-		};
 		52437F9D302B875100A2F27A /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -630,8 +598,6 @@
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
-					"-framework",
-					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Life.Streamlining.MediaKeyGuardForSafari;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -668,8 +634,6 @@
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
-					"-framework",
-					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Life.Streamlining.MediaKeyGuardForSafari;
 				PRODUCT_NAME = "$(TARGET_NAME)";
